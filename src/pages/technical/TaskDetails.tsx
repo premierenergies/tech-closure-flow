@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getTasks, getProjects, getCustomers, getResponses, getReviews, getFinals, users } from "@/lib/storage";
-import { Task, Project, Response, Review, Final } from "@/lib/data";
+import { getTasks, getProjects, getCustomers, getResponses, getReviews, getFinals } from "@/lib/storage";
+import { Task, Project, Response, Review, Final, users } from "@/lib/data";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProjectDetails from "@/components/common/ProjectDetails";

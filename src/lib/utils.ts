@@ -104,3 +104,6 @@ export function fileToBase64(file: File): Promise<string> {
     reader.onerror = error => reject(error);
   });
 }
+
+// Add missing exports for getPEPPLAssignees and getOtherAssignees
+export { getPEPPLAssignees, getOtherAssignees } from './data';

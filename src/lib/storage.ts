@@ -1,5 +1,5 @@
 
-import { Customer, Project, Task, Response, Review, Final, User } from './data';
+import { Customer, Project, Task, Response, Review, Final, User, users } from './data';
 
 const STORAGE_KEYS = {
   CUSTOMERS: 'premier_energies_customers',
@@ -10,6 +10,9 @@ const STORAGE_KEYS = {
   FINALS: 'premier_energies_finals',
   CURRENT_USER: 'premier_energies_current_user',
 };
+
+// Export users for access in other files
+export { users };
 
 // Customers
 export const saveCustomers = (customers: Customer[]): void => {
@@ -51,6 +54,12 @@ export const updateProject = (updatedProject: Project): void => {
     projects[index] = updatedProject;
     saveProjects(projects);
   }
+};
+
+// Added getProjectById function that was missing
+export const getProjectById = (projectId: string): Project | undefined => {
+  const projects = getProjects();
+  return projects.find(project => project.id === projectId);
 };
 
 // Tasks
