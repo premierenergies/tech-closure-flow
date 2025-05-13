@@ -1,26 +1,70 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import CompletedProjects from "./pages/CompletedProjects";
+import ProjectDetails from "./pages/ProjectDetails";
+
+// Technical role pages
+import TechnicalProjectDetails from "./pages/technical/ProjectDetails";
+import TechnicalTaskDetails from "./pages/technical/TaskDetails";
+
+// Assignee role pages
+import AssigneeTasks from "./pages/assignee/TasksList";
+import AssigneeTaskDetail from "./pages/assignee/TaskDetail";
+
+// Reviewer role pages
+import ReviewerTasks from "./pages/reviewer/TasksList";
+import ReviewerTaskDetail from "./pages/reviewer/TaskDetail";
+
+// Final role pages
+import FinalTasksList from "./pages/final/TasksList";
+import FinalTaskDetail from "./pages/final/TaskDetail";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/completed-projects" element={<CompletedProjects />} />
+            <Route path="/project/:projectId" element={<ProjectDetails />} />
+
+            {/* Technical role routes */}
+            <Route path="/technical/project/:projectId" element={<TechnicalProjectDetails />} />
+            <Route path="/technical/task/:taskId" element={<TechnicalTaskDetails />} />
+
+            {/* Assignee role routes */}
+            <Route path="/assignee/tasks" element={<AssigneeTasks />} />
+            <Route path="/assignee/task/:taskId" element={<AssigneeTaskDetail />} />
+
+            {/* Reviewer role routes */}
+            <Route path="/reviewer/tasks" element={<ReviewerTasks />} />
+            <Route path="/reviewer/task/:taskId" element={<ReviewerTaskDetail />} />
+
+            {/* Final role routes */}
+            <Route path="/final/tasks" element={<FinalTasksList />} />
+            <Route path="/final/task/:taskId" element={<FinalTaskDetail />} />
+
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
