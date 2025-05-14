@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import CompletedProjects from "./pages/CompletedProjects";
 import ProjectDetails from "./pages/ProjectDetails";
+import CompletedProjectDetails from "./pages/sales/CompletedProjectDetails";
 
 // Technical role pages
 import TechnicalProjectDetails from "./pages/technical/ProjectDetails";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/completed-projects" element={<CompletedProjects />} />
             <Route path="/project/:projectId" element={<ProjectDetails />} />
+            <Route path="/completed-project/:projectId" element={<CompletedProjectDetails />} />
 
             {/* Technical role routes */}
             <Route path="/technical/project/:projectId" element={<TechnicalProjectDetails />} />

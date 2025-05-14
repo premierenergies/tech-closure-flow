@@ -57,7 +57,7 @@ const CompletedProjects: React.FC = () => {
                       <TableCell>{formatDate(project.createdAt)}</TableCell>
                       <TableCell>
                         <Button variant="outline" size="sm" asChild>
-                          <Link to={`/project/${project.id}`}>
+                          <Link to={`/completed-project/${project.id}`}>
                             View Details
                           </Link>
                         </Button>
