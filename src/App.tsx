@@ -28,6 +28,7 @@ import ReviewerTaskDetail from "./pages/reviewer/TaskDetail";
 // Final role pages
 import FinalTasksList from "./pages/final/TasksList";
 import FinalTaskDetail from "./pages/final/TaskDetail";
+import Analytics from "./pages/final/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             {/* Final role routes */}
             <Route path="/final/tasks" element={<FinalTasksList />} />
             <Route path="/final/task/:taskId" element={<FinalTaskDetail />} />
+            <Route path="/final/analytics" element={<Analytics />} />
 
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
