@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTasks, getResponses, getReviews, getFinals, getProjects, getCustomers } from "@/lib/storage";
+import { getTasks, getResponses, getReviews, getFinals, getProjects, getCustomers, addCustomer } from "@/lib/storage";
 import { Task, Response, Review, Final, Project, Customer } from "@/lib/data";
 import Layout from "@/components/layout/Layout";
 import CustomerTile from "@/components/common/CustomerTile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CreateCustomerModal from "@/components/modals/CreateCustomerModal";
+import ViewProjectsModal from "@/components/modals/ViewProjectsModal";
+import CreateProjectModal from "@/components/modals/CreateProjectModal";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, getUserById } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,12 +20,17 @@ import {
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [finals, setFinals] = useState<Final[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(false);
+  const [isViewProjectsModalOpen, setIsViewProjectsModalOpen] = useState(false);
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
 
   useEffect(() => {
     // Load data for all roles
@@ -34,6 +41,21 @@ const Dashboard: React.FC = () => {
     setFinals(getFinals());
     setProjects(getProjects());
   }, []);
+
+  const handleCreateCustomer = (customer: Customer) => {
+    addCustomer(customer);
+    setCustomers(getCustomers());
+  };
+
+  const handleViewProjects = (customerId: string) => {
+    setSelectedCustomerId(customerId);
+    setIsViewProjectsModalOpen(true);
+  };
+
+  const handleCreateProject = (customerId: string) => {
+    setSelectedCustomerId(customerId);
+    setIsCreateProjectModalOpen(true);
+  };
 
   // Sales role dashboard
   if (user?.role === "sales") {
@@ -49,13 +71,20 @@ const Dashboard: React.FC = () => {
               <Link to="/completed-projects">
                 <Button variant="outline">View Completed Projects</Button>
               </Link>
-              <CreateCustomerModal onCustomerCreated={() => setCustomers(getCustomers())} />
+              <Button onClick={() => setIsCreateCustomerModalOpen(true)}>
+                Create Customer
+              </Button>
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {customers.map((customer) => (
-              <CustomerTile key={customer.id} customer={customer} />
+              <CustomerTile 
+                key={customer.id} 
+                customer={customer}
+                onViewProjects={handleViewProjects}
+                onCreateProject={handleCreateProject}
+              />
             ))}
           </div>
           
@@ -63,9 +92,30 @@ const Dashboard: React.FC = () => {
             <div className="text-center py-20 bg-gray-50 rounded-lg">
               <h3 className="text-xl font-medium text-gray-600">No customers yet</h3>
               <p className="text-gray-500 mt-2">Create your first customer to get started</p>
-              <CreateCustomerModal onCustomerCreated={() => setCustomers(getCustomers())} />
+              <Button onClick={() => setIsCreateCustomerModalOpen(true)}>
+                Create Customer
+              </Button>
             </div>
           )}
+
+          <CreateCustomerModal
+            isOpen={isCreateCustomerModalOpen}
+            onClose={() => setIsCreateCustomerModalOpen(false)}
+            onCreateCustomer={handleCreateCustomer}
+          />
+
+          <ViewProjectsModal
+            isOpen={isViewProjectsModalOpen}
+            onClose={() => setIsViewProjectsModalOpen(false)}
+            customerId={selectedCustomerId}
+          />
+
+          <CreateProjectModal
+            isOpen={isCreateProjectModalOpen}
+            onClose={() => setIsCreateProjectModalOpen(false)}
+            customerId={selectedCustomerId}
+            onProjectCreated={() => setProjects(getProjects())}
+          />
         </div>
       </Layout>
     );
@@ -83,7 +133,12 @@ const Dashboard: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {customers.map((customer) => (
-              <CustomerTile key={customer.id} customer={customer} />
+              <CustomerTile 
+                key={customer.id} 
+                customer={customer}
+                onViewProjects={handleViewProjects}
+                onCreateProject={handleCreateProject}
+              />
             ))}
           </div>
           
@@ -93,6 +148,12 @@ const Dashboard: React.FC = () => {
               <p className="text-gray-500 mt-2">Projects will appear here once created by sales team</p>
             </div>
           )}
+
+          <ViewProjectsModal
+            isOpen={isViewProjectsModalOpen}
+            onClose={() => setIsViewProjectsModalOpen(false)}
+            customerId={selectedCustomerId}
+          />
         </div>
       </Layout>
     );
