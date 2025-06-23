@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -32,6 +32,10 @@ const Dashboard: React.FC = () => {
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
+  // Add debugging
+  console.log("Dashboard - User:", user);
+  console.log("Dashboard - IsAuthenticated:", isAuthenticated);
+
   useEffect(() => {
     // Load data for all roles
     setCustomers(getCustomers());
@@ -41,6 +45,26 @@ const Dashboard: React.FC = () => {
     setFinals(getFinals());
     setProjects(getProjects());
   }, []);
+
+  // Handle authentication loading state
+  if (!isAuthenticated) {
+    console.log("Dashboard - Not authenticated, should redirect");
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Redirecting to login...</p>
+      </div>
+    );
+  }
+
+  // Handle case where user is authenticated but user object is null
+  if (!user) {
+    console.log("Dashboard - Authenticated but no user object");
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading user data...</p>
+      </div>
+    );
+  }
 
   const handleCreateCustomer = (customer: Customer) => {
     addCustomer(customer);
@@ -67,6 +91,8 @@ const Dashboard: React.FC = () => {
     setProjects(getProjects());
     setIsCreateProjectModalOpen(false);
   };
+
+  console.log("Dashboard - User role:", user.role);
 
   // Sales role dashboard
   if (user?.role === "sales") {
@@ -496,7 +522,22 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  return null;
+  // Fallback for unknown roles or debugging
+  console.log("Dashboard - No role matched, rendering fallback");
+  return (
+    <Layout>
+      <div className="space-y-8">
+        <div className="text-center py-20">
+          <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+          <p className="text-gray-500 mb-4">Welcome, {user.name}</p>
+          <p className="text-sm text-gray-400">Role: {user.role}</p>
+          <p className="text-sm text-red-500 mt-4">
+            Role "{user.role}" is not recognized. Please contact support.
+          </p>
+        </div>
+      </div>
+    </Layout>
+  );
 };
 
 export default Dashboard;
