@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
   const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(false);
   const [isViewProjectsModalOpen, setIsViewProjectsModalOpen] = useState(false);
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
     // Load data for all roles
@@ -48,13 +48,24 @@ const Dashboard: React.FC = () => {
   };
 
   const handleViewProjects = (customerId: string) => {
-    setSelectedCustomerId(customerId);
+    const customer = customers.find(c => c.id === customerId);
+    setSelectedCustomer(customer || null);
     setIsViewProjectsModalOpen(true);
   };
 
   const handleCreateProject = (customerId: string) => {
-    setSelectedCustomerId(customerId);
+    const customer = customers.find(c => c.id === customerId);
+    setSelectedCustomer(customer || null);
     setIsCreateProjectModalOpen(true);
+  };
+
+  const handleViewProject = (projectId: string) => {
+    navigate(`/project/${projectId}`);
+  };
+
+  const handleProjectCreated = (project: Project) => {
+    setProjects(getProjects());
+    setIsCreateProjectModalOpen(false);
   };
 
   // Sales role dashboard
@@ -107,14 +118,16 @@ const Dashboard: React.FC = () => {
           <ViewProjectsModal
             isOpen={isViewProjectsModalOpen}
             onClose={() => setIsViewProjectsModalOpen(false)}
-            customerId={selectedCustomerId}
+            customer={selectedCustomer}
+            projects={projects}
+            onViewProject={handleViewProject}
           />
 
           <CreateProjectModal
             isOpen={isCreateProjectModalOpen}
             onClose={() => setIsCreateProjectModalOpen(false)}
-            customerId={selectedCustomerId}
-            onProjectCreated={() => setProjects(getProjects())}
+            customer={selectedCustomer}
+            onCreateProject={handleProjectCreated}
           />
         </div>
       </Layout>
@@ -152,7 +165,9 @@ const Dashboard: React.FC = () => {
           <ViewProjectsModal
             isOpen={isViewProjectsModalOpen}
             onClose={() => setIsViewProjectsModalOpen(false)}
-            customerId={selectedCustomerId}
+            customer={selectedCustomer}
+            projects={projects}
+            onViewProject={handleViewProject}
           />
         </div>
       </Layout>
