@@ -62,12 +62,12 @@ export const downloadDocument = (document: StoredDocument): void => {
   const blob = new Blob([byteArray], { type: document.type });
   
   const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = window.document.createElement('a');
   link.href = url;
   link.download = document.name;
-  document.body.appendChild(link);
+  window.document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  window.document.body.removeChild(link);
   window.URL.revokeObjectURL(url);
 };
 
