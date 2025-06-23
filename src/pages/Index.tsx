@@ -13,17 +13,9 @@ const Index: React.FC = () => {
       return;
     }
 
-    // Redirect based on role
+    // Redirect to dashboard for all authenticated users
     if (user) {
-      if (user.role === "assignee") {
-        navigate("/assignee/tasks");
-      } else if (user.role === "reviewer") {
-        navigate("/reviewer/tasks");
-      } else if (user.role === "final") {
-        navigate("/final/tasks");
-      } else {
-        navigate("/");
-      }
+      navigate("/dashboard");
     }
   }, [isAuthenticated, user, navigate]);
 
