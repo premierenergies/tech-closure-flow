@@ -21,8 +21,8 @@ const CompletedProjects: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [finals, setFinals] = useState<Final[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterCustomer, setFilterCustomer] = useState("");
-  const [filterPlant, setFilterPlant] = useState("");
+  const [filterCustomer, setFilterCustomer] = useState("all");
+  const [filterPlant, setFilterPlant] = useState("all");
 
   useEffect(() => {
     // Load all data
@@ -43,8 +43,8 @@ const CompletedProjects: React.FC = () => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.product.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCustomer = !filterCustomer || project.customerId === filterCustomer;
-    const matchesPlant = !filterPlant || project.plant === filterPlant;
+    const matchesCustomer = filterCustomer === "all" || project.customerId === filterCustomer;
+    const matchesPlant = filterPlant === "all" || project.plant === filterPlant;
     
     return matchesSearch && matchesCustomer && matchesPlant;
   });
@@ -154,7 +154,7 @@ const CompletedProjects: React.FC = () => {
                   <SelectValue placeholder="Filter by Customer" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Customers</SelectItem>
+                  <SelectItem value="all">All Customers</SelectItem>
                   {uniqueCustomers.map(customerId => {
                     const customer = getCustomerById(customerId, customers);
                     return (
@@ -171,7 +171,7 @@ const CompletedProjects: React.FC = () => {
                   <SelectValue placeholder="Filter by Plant" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Plants</SelectItem>
+                  <SelectItem value="all">All Plants</SelectItem>
                   {uniquePlants.map(plant => (
                     <SelectItem key={plant} value={plant}>
                       {plant}
@@ -184,8 +184,8 @@ const CompletedProjects: React.FC = () => {
                 variant="outline"
                 onClick={() => {
                   setSearchTerm("");
-                  setFilterCustomer("");
-                  setFilterPlant("");
+                  setFilterCustomer("all");
+                  setFilterPlant("all");
                 }}
               >
                 Clear Filters
