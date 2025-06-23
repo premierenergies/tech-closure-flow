@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatDate, getUserById } from "@/lib/utils";
 import { Task, User } from "@/lib/data";
+import DocumentsList from "./DocumentsList";
 
 interface TaskDetailsProps {
   task: Task;
@@ -81,16 +82,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ task, users }) => {
 
         {task.attachments && task.attachments.length > 0 && (
           <div className="mt-6">
-            <h4 className="font-medium text-gray-500 mb-2">Attachments</h4>
-            <div className="space-y-2">
-              {task.attachments.map((attachment, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                    {`Attachment ${index + 1}`}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <DocumentsList 
+              documentIds={task.attachments} 
+              title="Task Attachments"
+            />
           </div>
         )}
 

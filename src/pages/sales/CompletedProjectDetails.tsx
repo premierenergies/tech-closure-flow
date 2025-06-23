@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { getProjectById, getCustomers, getTasks, getResponses, getReviews, getFinals } from "@/lib/storage";
 import { formatDate, getUserById } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Download } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import DocumentsList from "@/components/common/DocumentsList";
 
 const CompletedProjectDetails: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -48,12 +48,10 @@ const CompletedProjectDetails: React.FC = () => {
     }
   }, [projectId]);
 
-  const handleDownload = (fileType: string) => {
-    // In a real-world scenario, this would trigger a file download
-    // For this demo, we'll show a toast indicating the download
+  const handleDownloadAll = (documentType: string) => {
     toast({
       title: "Download Started",
-      description: `${fileType} is being downloaded`,
+      description: `All ${documentType} documents are being prepared for download`,
     });
   };
 
@@ -82,6 +80,14 @@ const CompletedProjectDetails: React.FC = () => {
 
   const customer = customers.find((c) => c.id === project.customerId);
 
+  // Collect all project document IDs
+  const projectDocumentIds = [
+    ...(project.technicalSpecs ? [project.technicalSpecs] : []),
+    ...(project.tenderDocument ? [project.tenderDocument] : []),
+    ...(project.qapAttachment ? [project.qapAttachment] : []),
+    ...(project.otherAttachments || [])
+  ];
+
   return (
     <Layout allowedRoles={["sales"]}>
       <div className="space-y-8">
@@ -100,18 +106,7 @@ const CompletedProjectDetails: React.FC = () => {
         {/* Project Information */}
         <Card className="shadow-md">
           <CardHeader className="bg-gray-50 border-b">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-xl">Project Information</CardTitle>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="flex items-center gap-2"
-                onClick={() => handleDownload("Project Information")}
-              >
-                <Download size={16} />
-                Download Project Info
-              </Button>
-            </div>
+            <CardTitle className="text-xl">Project Information</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -156,86 +151,19 @@ const CompletedProjectDetails: React.FC = () => {
         </Card>
 
         {/* Project Documents */}
-        <Card className="shadow-md">
-          <CardHeader className="bg-gray-50 border-b">
-            <CardTitle className="text-xl">Project Documents</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              {project.technicalSpecs && (
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium">Technical Specifications</h4>
-                    <p className="text-sm text-gray-500">Original document provided during project creation</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex items-center gap-2"
-                    onClick={() => handleDownload("Technical Specifications")}
-                  >
-                    <Download size={16} />
-                    Download
-                  </Button>
-                </div>
-              )}
-              
-              {project.tenderDocument && (
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium">Tender Document</h4>
-                    <p className="text-sm text-gray-500">Original tender document provided during project creation</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex items-center gap-2"
-                    onClick={() => handleDownload("Tender Document")}
-                  >
-                    <Download size={16} />
-                    Download
-                  </Button>
-                </div>
-              )}
-              
-              {project.qapCriteria && project.qapAttachment && (
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium">QAP Document</h4>
-                    <p className="text-sm text-gray-500">QAP criteria document</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex items-center gap-2"
-                    onClick={() => handleDownload("QAP Document")}
-                  >
-                    <Download size={16} />
-                    Download
-                  </Button>
-                </div>
-              )}
-              
-              {project.otherAttachments && project.otherAttachments.length > 0 && project.otherAttachments.map((attachment: any, index: number) => (
-                <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium">Additional Document {index + 1}</h4>
-                    <p className="text-sm text-gray-500">Supplementary project document</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex items-center gap-2"
-                    onClick={() => handleDownload(`Additional Document ${index + 1}`)}
-                  >
-                    <Download size={16} />
-                    Download
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {projectDocumentIds.length > 0 && (
+          <Card className="shadow-md">
+            <CardHeader className="bg-gray-50 border-b">
+              <CardTitle className="text-xl">Project Documents</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <DocumentsList 
+                documentIds={projectDocumentIds}
+                title="Original Project Documents"
+              />
+            </CardContent>
+          </Card>
+        )}
         
         {/* Tasks and Responses */}
         {tasks.length > 0 && (
@@ -246,10 +174,8 @@ const CompletedProjectDetails: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="flex items-center gap-2"
-                  onClick={() => handleDownload("All Task Responses")}
+                  onClick={() => handleDownloadAll("task")}
                 >
-                  <Download size={16} />
                   Download All Task Data
                 </Button>
               </div>
@@ -267,18 +193,7 @@ const CompletedProjectDetails: React.FC = () => {
                   return (
                     <div key={task.id} className="border rounded-lg overflow-hidden">
                       <div className="bg-gray-100 p-4">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-semibold text-lg">{task.title}</h3>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="flex items-center gap-2"
-                            onClick={() => handleDownload(`Task - ${task.title}`)}
-                          >
-                            <Download size={16} />
-                            Download
-                          </Button>
-                        </div>
+                        <h3 className="font-semibold text-lg">{task.title}</h3>
                         <p className="text-gray-600 mt-1">{task.description}</p>
                         <p className="text-sm text-gray-500 mt-2">
                           Created by {createdByUser?.name} on {formatDate(task.createdAt)}
@@ -288,72 +203,35 @@ const CompletedProjectDetails: React.FC = () => {
                       {/* Task attachments */}
                       {task.attachments && task.attachments.length > 0 && (
                         <div className="p-4 border-t">
-                          <h4 className="font-medium mb-3">Task Attachments</h4>
-                          <div className="space-y-2">
-                            {task.attachments.map((attachment: string, idx: number) => (
-                              <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                                <span>Attachment {idx + 1}</span>
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost" 
-                                  className="flex items-center gap-1"
-                                  onClick={() => handleDownload(`Task ${task.id} Attachment ${idx + 1}`)}
-                                >
-                                  <Download size={14} />
-                                  Download
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
+                          <DocumentsList 
+                            documentIds={task.attachments}
+                            title="Task Attachments"
+                          />
                         </div>
                       )}
                       
                       {/* Response data */}
                       {taskResponses.length > 0 && (
                         <div className="p-4 border-t bg-blue-50">
-                          <h4 className="font-medium mb-3">Assignee Response</h4>
+                          <h4 className="font-medium mb-3">Assignee Responses</h4>
                           {taskResponses.map(response => {
                             const responder = getUserById(response.respondedBy);
                             return (
-                              <div key={response.id} className="space-y-3">
-                                <div className="flex justify-between">
-                                  <p>
-                                    <span className="font-medium">{responder?.name}</span> 
-                                    <span className="text-sm text-gray-600 ml-2">
-                                      responded on {formatDate(response.respondedAt)}
-                                    </span>
-                                  </p>
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost" 
-                                    className="flex items-center gap-1"
-                                    onClick={() => handleDownload(`Response ${response.id}`)}
-                                  >
-                                    <Download size={14} />
-                                    Download
-                                  </Button>
-                                </div>
+                              <div key={response.id} className="space-y-3 mb-4">
+                                <p>
+                                  <span className="font-medium">{responder?.name}</span> 
+                                  <span className="text-sm text-gray-600 ml-2">
+                                    responded on {formatDate(response.respondedAt)}
+                                  </span>
+                                </p>
                                 <p className="text-gray-800">{response.comments}</p>
                                 
                                 {/* Response attachments */}
                                 {response.attachments && response.attachments.length > 0 && (
-                                  <div className="space-y-2 mt-2">
-                                    <h5 className="text-sm font-medium">Attachments:</h5>
-                                    {response.attachments.map((attachment: string, idx: number) => (
-                                      <div key={idx} className="flex justify-between items-center p-2 bg-white rounded">
-                                        <span className="text-sm">Response Attachment {idx + 1}</span>
-                                        <Button 
-                                          size="sm" 
-                                          variant="ghost" 
-                                          className="flex items-center gap-1"
-                                          onClick={() => handleDownload(`Response ${response.id} Attachment ${idx + 1}`)}
-                                        >
-                                          <Download size={14} />
-                                          Download
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
+                                  <DocumentsList 
+                                    documentIds={response.attachments}
+                                    title="Response Attachments"
+                                  />
                                 )}
                               </div>
                             );
@@ -368,45 +246,21 @@ const CompletedProjectDetails: React.FC = () => {
                           {taskReviews.map(review => {
                             const reviewer = getUserById(review.reviewedBy);
                             return (
-                              <div key={review.id} className="space-y-3">
-                                <div className="flex justify-between">
-                                  <p>
-                                    <span className="font-medium">{reviewer?.name}</span> 
-                                    <span className="text-sm text-gray-600 ml-2">
-                                      reviewed on {formatDate(review.reviewedAt)}
-                                    </span>
-                                  </p>
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost" 
-                                    className="flex items-center gap-1"
-                                    onClick={() => handleDownload(`Review ${review.id}`)}
-                                  >
-                                    <Download size={14} />
-                                    Download
-                                  </Button>
-                                </div>
+                              <div key={review.id} className="space-y-3 mb-4">
+                                <p>
+                                  <span className="font-medium">{reviewer?.name}</span> 
+                                  <span className="text-sm text-gray-600 ml-2">
+                                    reviewed on {formatDate(review.reviewedAt)}
+                                  </span>
+                                </p>
                                 <p className="text-gray-800">{review.comments}</p>
                                 
                                 {/* Review attachments */}
                                 {review.attachments && review.attachments.length > 0 && (
-                                  <div className="space-y-2 mt-2">
-                                    <h5 className="text-sm font-medium">Attachments:</h5>
-                                    {review.attachments.map((attachment: string, idx: number) => (
-                                      <div key={idx} className="flex justify-between items-center p-2 bg-white rounded">
-                                        <span className="text-sm">Review Attachment {idx + 1}</span>
-                                        <Button 
-                                          size="sm" 
-                                          variant="ghost" 
-                                          className="flex items-center gap-1"
-                                          onClick={() => handleDownload(`Review ${review.id} Attachment ${idx + 1}`)}
-                                        >
-                                          <Download size={14} />
-                                          Download
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
+                                  <DocumentsList 
+                                    documentIds={review.attachments}
+                                    title="Review Attachments"
+                                  />
                                 )}
                               </div>
                             );
@@ -421,45 +275,21 @@ const CompletedProjectDetails: React.FC = () => {
                           {taskFinals.map(final => {
                             const approver = getUserById(final.approvedBy);
                             return (
-                              <div key={final.id} className="space-y-3">
-                                <div className="flex justify-between">
-                                  <p>
-                                    <span className="font-medium">{approver?.name}</span> 
-                                    <span className="text-sm text-gray-600 ml-2">
-                                      approved on {formatDate(final.approvedAt)}
-                                    </span>
-                                  </p>
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost" 
-                                    className="flex items-center gap-1"
-                                    onClick={() => handleDownload(`Final Approval ${final.id}`)}
-                                  >
-                                    <Download size={14} />
-                                    Download
-                                  </Button>
-                                </div>
+                              <div key={final.id} className="space-y-3 mb-4">
+                                <p>
+                                  <span className="font-medium">{approver?.name}</span> 
+                                  <span className="text-sm text-gray-600 ml-2">
+                                    approved on {formatDate(final.approvedAt)}
+                                  </span>
+                                </p>
                                 <p className="text-gray-800">{final.comments}</p>
                                 
                                 {/* Final approval attachments */}
                                 {final.attachments && final.attachments.length > 0 && (
-                                  <div className="space-y-2 mt-2">
-                                    <h5 className="text-sm font-medium">Attachments:</h5>
-                                    {final.attachments.map((attachment: string, idx: number) => (
-                                      <div key={idx} className="flex justify-between items-center p-2 bg-white rounded">
-                                        <span className="text-sm">Final Approval Attachment {idx + 1}</span>
-                                        <Button 
-                                          size="sm" 
-                                          variant="ghost" 
-                                          className="flex items-center gap-1"
-                                          onClick={() => handleDownload(`Final ${final.id} Attachment ${idx + 1}`)}
-                                        >
-                                          <Download size={14} />
-                                          Download
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
+                                  <DocumentsList 
+                                    documentIds={final.attachments}
+                                    title="Final Approval Attachments"
+                                  />
                                 )}
                               </div>
                             );

@@ -20,6 +20,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import FileUpload from "@/components/common/FileUpload";
+import { StoredDocument, addDocument } from "@/lib/documentStorage";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -39,6 +41,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
   const [availableAssignees, setAvailableAssignees] = useState<User[]>([]);
+  const [attachments, setAttachments] = useState<StoredDocument[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
 
@@ -58,6 +61,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     setDescription("");
     setDueDate(undefined);
     setSelectedAssignees([]);
+    setAttachments([]);
   };
 
   const toggleAssignee = (assigneeId: string) => {
@@ -75,12 +79,16 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     
     setIsSubmitting(true);
     
+    // Store documents
+    attachments.forEach(doc => addDocument(doc));
+    
     const newTask: Task = {
       id: generateId(),
       projectId: project.id,
       title: title.trim(),
       description: description.trim(),
       dueDate: dueDate.toISOString(),
+      attachments: attachments.map(doc => doc.id),
       assignees: selectedAssignees,
       createdBy: user.id,
       createdAt: new Date().toISOString(),
@@ -186,11 +194,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               )}
             </div>
             
-            {/* Mock file upload field */}
-            <div className="space-y-2">
-              <Label htmlFor="attachments">Additional Attachments</Label>
-              <Input id="attachments" type="file" multiple />
-            </div>
+            <FileUpload
+              label="Task Attachments"
+              multiple={true}
+              onFilesChange={setAttachments}
+            />
           </div>
           
           <DialogFooter>

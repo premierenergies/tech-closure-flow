@@ -7,13 +7,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Task, Response } from "@/lib/data";
 import { generateId } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import FileUpload from "@/components/common/FileUpload";
+import { StoredDocument, addDocument } from "@/lib/documentStorage";
 
 interface TaskResponseModalProps {
   isOpen: boolean;
@@ -29,11 +30,13 @@ const TaskResponseModal: React.FC<TaskResponseModalProps> = ({
   onSubmitResponse,
 }) => {
   const [comments, setComments] = useState("");
+  const [attachments, setAttachments] = useState<StoredDocument[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
 
   const resetForm = () => {
     setComments("");
+    setAttachments([]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,14 +46,18 @@ const TaskResponseModal: React.FC<TaskResponseModalProps> = ({
     
     setIsSubmitting(true);
     
+    // Store documents
+    attachments.forEach(doc => addDocument(doc));
+    
     const newResponse: Response = {
       id: generateId(),
       taskId: task.id,
       projectId: task.projectId,
       comments: comments.trim(),
+      attachments: attachments.map(doc => doc.id),
       respondedBy: user.id,
       respondedAt: new Date().toISOString(),
-      status: "review", // Initial status is for review
+      status: "review",
     };
 
     onSubmitResponse(newResponse);
@@ -81,11 +88,11 @@ const TaskResponseModal: React.FC<TaskResponseModalProps> = ({
               />
             </div>
             
-            {/* Mock file upload field */}
-            <div className="space-y-2">
-              <Label htmlFor="attachments">Attachments</Label>
-              <Input id="attachments" type="file" multiple />
-            </div>
+            <FileUpload
+              label="Response Attachments"
+              multiple={true}
+              onFilesChange={setAttachments}
+            />
           </div>
           
           <DialogFooter>
