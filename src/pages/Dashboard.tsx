@@ -84,7 +84,11 @@ const Dashboard: React.FC = () => {
   };
 
   const handleViewProject = (projectId: string) => {
-    navigate(`/project/${projectId}`);
+    if (user?.role === "technical") {
+      navigate(`/technical/project/${projectId}`);
+    } else {
+      navigate(`/project/${projectId}`);
+    }
   };
 
   const handleProjectCreated = (project: Project) => {
