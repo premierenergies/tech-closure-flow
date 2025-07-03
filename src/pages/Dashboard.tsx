@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTasks, getResponses, getReviews, getFinals, getProjects, getCustomers, addCustomer } from "@/lib/storage";
+import { getTasks, getResponses, getReviews, getFinals, getProjects, getCustomers, addCustomer, addProject } from "@/lib/storage";
 import { Task, Response, Review, Final, Project, Customer } from "@/lib/data";
 import Layout from "@/components/layout/Layout";
 import CustomerTile from "@/components/common/CustomerTile";
@@ -88,6 +88,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleProjectCreated = (project: Project) => {
+    addProject(project);
     setProjects(getProjects());
     setIsCreateProjectModalOpen(false);
   };
