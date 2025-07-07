@@ -38,12 +38,16 @@ const TechnicalProjectDetails: React.FC = () => {
   }, [projectId]);
 
   const handleCreateTask = (newTask: Task) => {
+    console.log("Creating task:", newTask);
     addTask(newTask);
-    setTasks([...tasks, newTask]);
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
+    console.log("Tasks after creation:", updatedTasks);
     toast({
       title: "Task Created",
       description: `${newTask.title} has been created successfully.`,
     });
+    setIsCreateTaskModalOpen(false);
   };
 
   if (!project) {
